@@ -49,8 +49,11 @@
 #define LV_TICK_PERIOD_MS 1
 
 SemaphoreHandle_t core2foraws_common_spi_semaphore;
+SemaphoreHandle_t core2foraws_display_health_semaphore;
 TaskHandle_t core2foraws_display_task_handle;
 lv_disp_t *core2foraws_display_ptr;
+uint64_t core2foraws_gui_loop_counter;
+uint64_t core2foraws_gui_tick_counter;
 
 static const char *_TAG = "CORE2FORAWS_DISPLAY";
 static lv_color_t *_buf1 = NULL;
@@ -63,11 +66,16 @@ static void _lv_tick_task( void *arg )
 {
     ( void ) arg;
     lv_tick_inc( LV_TICK_PERIOD_MS );
+    if ( pdTRUE == xSemaphoreTake( core2foraws_display_health_semaphore, 0 ) )
+    {
+        core2foraws_gui_tick_counter++;
+        xSemaphoreGive( core2foraws_display_health_semaphore );
+    }
 }
 
 static void _gui_task( void *pvParameter )
 {
-    
+
     ( void ) pvParameter;
 
     while ( 1 )
@@ -76,11 +84,16 @@ static void _gui_task( void *pvParameter )
         vTaskDelay( pdMS_TO_TICKS( 10 ) );
 
         /* Try to take the semaphore, call lvgl related function on success */
-        if ( pdTRUE == xSemaphoreTake( core2foraws_common_spi_semaphore, portMAX_DELAY ) ) 
+        if ( pdTRUE == xSemaphoreTake( core2foraws_common_spi_semaphore, portMAX_DELAY ) )
 		{
             uint32_t ms_to_next_call = lv_task_handler();
             ESP_LOGV( _TAG, "%dms until next LVGL timer call.", ms_to_next_call );
             xSemaphoreGive( core2foraws_common_spi_semaphore );
+        }
+        if ( pdTRUE == xSemaphoreTake( core2foraws_display_health_semaphore, 0 ) )
+        {
+            core2foraws_gui_loop_counter++;
+            xSemaphoreGive( core2foraws_display_health_semaphore );
         }
     }
 
@@ -90,16 +103,37 @@ static void _gui_task( void *pvParameter )
     vTaskDelete( NULL );
 }
 
-esp_err_t core2foraws_display_init( void ) 
+esp_err_t core2foraws_display_health_check( TickType_t timeoutTicks )
+{
+    esp_err_t rv = ESP_FAIL;
+    if ( pdTRUE == xSemaphoreTake( core2foraws_display_health_semaphore, timeoutTicks ) )
+    {
+        if(core2foraws_gui_loop_counter>0 && core2foraws_gui_tick_counter>0)
+        {
+            rv = ESP_OK;
+        }else{
+            rv = ESP_FAIL;
+        }
+        core2foraws_gui_loop_counter = 0;
+        core2foraws_gui_tick_counter = 0;
+        xSemaphoreGive( core2foraws_display_health_semaphore );
+    }else{
+        rv = ESP_ERR_TIMEOUT;
+    }
+    return rv;
+}
+
+esp_err_t core2foraws_display_init( void )
 {
     ESP_LOGI( _TAG, "\tInitializing" );
 
     lvgl_i2c_locking( i2c_manager_locking() );
 
 	core2foraws_common_spi_semaphore = xSemaphoreCreateMutex();
+	core2foraws_display_health_semaphore = xSemaphoreCreateMutex();
 
     xSemaphoreTake( core2foraws_common_spi_semaphore, portMAX_DELAY );
-    	
+
 	lv_init();
 
 	/* Initialize the needed peripherals */
@@ -108,7 +142,7 @@ esp_err_t core2foraws_display_init( void )
     /* Initialize needed GPIOs, e.g. backlight, reset GPIOs */
     lvgl_display_gpios_init();
 
-	/* Use double buffered when not working with monochrome displays. 
+	/* Use double buffered when not working with monochrome displays.
 	 * Application should allocate two buffers buf1 and buf2 of size
 	 * (DISP_BUF_SIZE * sizeof(lv_color_t)) each
 	 */
@@ -119,7 +153,7 @@ esp_err_t core2foraws_display_init( void )
     _buf2 = heap_caps_malloc( display_buffer_size * sizeof( lv_color_t ), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT ); //Assuming max size of lv_color_t = 16bit, display buffer size calculated from max horizontal display size 480
     assert( _buf1 != NULL );
     assert( _buf2 != NULL );
-    
+
 	// Set up the frame buffers
     uint32_t size_in_px = display_buffer_size;
 	lv_disp_buf_init( &disp_buf, _buf1, _buf2, size_in_px );
@@ -168,7 +202,8 @@ esp_err_t core2foraws_display_init( void )
 	/* If you want to use a task to create the graphic, you NEED to create a Pinned task
      * Otherwise there can be problem such as memory corruption and so on.
      * NOTE: If you're not using Wi-Fi or Bluetooth, you can pin the _gui_task to core 0 */
-	xTaskCreatePinnedToCore( _gui_task, "gui", 4096*2, NULL, 4, &core2foraws_display_task_handle, 1 );
+    //NOTE: FLOW: Had to increase this to 16kb from 8kb default, due to stack overflow in QR Code generation
+	xTaskCreatePinnedToCore( _gui_task, "gui", 1024*16, NULL, 4, &core2foraws_display_task_handle, 1 );
 
 	return ESP_OK;
 }

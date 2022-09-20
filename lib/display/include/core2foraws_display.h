@@ -55,23 +55,23 @@ extern "C" {
  *
  * **Example:**
  *
- * Increase the task priority of the guiTask to improve the 
+ * Increase the task priority of the guiTask to improve the
  * screen write and touch input performance.
  * @code{c}
  *  #include <freertos/FreeRTOS.h>
  *  #include <freertos/task.h>
- *  
+ *
  *  #include "core2foraws.h"
- * 
+ *
  *  void app_main( void )
  *  {
  *      core2foraws_init();
- * 
+ *
  *      UBaseType_t gui_task_priorty = uxTaskPriorityGet( core2foraws_display_task_handle );
- *      
+ *
  *      vTaskPrioritySet( core2foraws_display_task_handle, gui_task_priorty + 1 );
  *  }
- *  
+ *
  * @endcode
  */
 /* @[declare_core2foraws_display_task_handle] */
@@ -83,25 +83,25 @@ extern TaskHandle_t core2foraws_display_task_handle;
  *
  * This is the pointer to the LVGL display and can be used to directly
  * get or modify the display parameters at runtime.
- * 
- * For more details, visit the [LVGL docs](https://docs.lvgl.io/8.0/porting/display.html) 
+ *
+ * For more details, visit the [LVGL docs](https://docs.lvgl.io/8.0/porting/display.html)
  * regarding the display interface and other available APIs.
  *
  * **Example:**
  *
- * Create a LVGL label widget, set the text of the label to "Hello 
+ * Create a LVGL label widget, set the text of the label to "Hello
  * World!", and align the label to the center of the screen. After
  * 1 second, rotate the display 180 degrees.
  * @code{c}
  *  #include <freertos/FreeRTOS.h>
  *  #include <freertos/task.h>
- *  
+ *
  *  #include "core2foraws.h"
- * 
+ *
  *  void app_main( void )
  *  {
  *      core2foraws_init();
- * 
+ *
  *      xSemaphoreTake( core2foraws_common_spi_semaphore, portMAX_DELAY );
  *
  *      lv_obj_t * hello_label = lv_label_create( NULL, NULL );
@@ -109,14 +109,14 @@ extern TaskHandle_t core2foraws_display_task_handle;
  *      lv_obj_align( hello_label, NULL, LV_ALIGN_CENTER, 0, 0 );
  *
  *      xSemaphoreGive( core2foraws_common_spi_semaphore );
- * 
+ *
  *      vTaskDelay( pdMS_TO_TICKS( 1000 ) );
- * 
+ *
  *      xSemaphoreTake( core2foraws_common_spi_semaphore, portMAX_DELAY );
  *      lv_disp_set_rotation( core2foraws_display_ptr, LV_DISP_ROT_180 );
  *      xSemaphoreGive( core2foraws_common_spi_semaphore );
  *  }
- *  
+ *
  * @endcode
  *
  */
@@ -126,21 +126,43 @@ extern lv_disp_t *core2foraws_display_ptr;
 
 /**
  * @brief Initializes the display controller and touch driver.
- * 
- * Wraps the [LVGL](https://lvgl.io/) and [LVGL_ESP32_Driver](https://github.com/lvgl/lvgl_esp32_drivers) 
+ *
+ * Wraps the [LVGL](https://lvgl.io/) and [LVGL_ESP32_Driver](https://github.com/lvgl/lvgl_esp32_drivers)
  * libraries to initialize the ILI9342C display controller and
  * FT6336U touch driver on the SPI bus.
  * @note The core2foraws_init() calls this function
  * when the hardware feature is enabled.
- * 
+ *
  * @return [esp_err_t](https://docs.espressif.com/projects/esp-idf/en/release-v4.3/esp32/api-reference/system/esp_err.html#macros).
  *  - ESP_OK                : Success
  *  - ESP_ERR_INVALID_STATE : Library is unable to initialize
  *  - ESP_ERR_NO_MEM        : Out of memory
  */
-/* @[declare_xore2foraws_display_init] */
+/* @[declare_core2foraws_display_init] */
 esp_err_t core2foraws_display_init( void );
-/* @[declare_xore2foraws_display_init] */
+/* @[declare_core2foraws_display_init] */
+
+/**
+ * @brief Allows the application to check if the display/ui tasks are still running
+ *
+ * This function was added in order to provide an external means to detect unexpected halts/crashes/lockups of the lvgl/ui threads.
+ * These can occur in the event of heap corruption or memory allocation failures for example.
+ * One specific example we have observed is a heap allocation failure from DMA memory for the SPI bus within the LVGL lib causing
+ * these tasks to fail, resulting in a UI lockup. If we can observe this externally our application can take remedial action
+ * Though the long-term correct solution is to fix the problem so that unexpected failures do not occur in the UI threads.
+ *
+ * @return [esp_err_t](https://docs.espressif.com/projects/esp-idf/en/release-v4.3/esp32/api-reference/system/esp_err.html#macros).
+ *  - ESP_OK                : Success, both the gui task, and tick task are running as expected
+ *  - ESP_FAIL              : Failure, either the gui task, or tick task have not incremented their respective counters
+ *                            Note: Some failures may occur if function is called too frequently, or due to multithreading causing
+ *                                  semaphore handling problems as the semaphore functions have zero blocking timeouts to prevent
+ *                                  performance problems so application code should tolerate some level of failures.
+ *                                  (ie: X consecutive failures results in critical failure)
+ *  - ESP_ERR_TIMEOUT       : The specified number of timeout ticks has elapsed without being able to take the health Semaphore
+ */
+/* @[core2foraws_display_health_check] */
+esp_err_t core2foraws_display_health_check( TickType_t timeoutTicks );
+/* @[core2foraws_display_health_check] */
 
 #ifdef __cplusplus
 }
