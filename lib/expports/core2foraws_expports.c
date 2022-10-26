@@ -54,27 +54,27 @@
  * Read more about [UART communications with the ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/peripherals/uart.html).
  */
 /* @[declare_pin_mode_t] */
-typedef enum 
+typedef enum
 {
     NONE,   /**< @brief Reset GPIO to default state. */
     OUTPUT, /**< @brief Set GPIO to output mode. */
     INPUT,  /**< @brief Set GPIO to input mode. */
-    I2C,    /**< @brief Enable I2C mode. Only available on Port A—GPIO 
+    I2C,    /**< @brief Enable I2C mode. Only available on Port A—GPIO
                         32(SDA) and Port A—GPIO 33 (SCL). */
     ADC,    /**< @brief Enable ADC mode. Only available on Port B—GPIO 36 */
     DAC,    /**< @brief Enable DAC mode. Only available on Port B—GPIO 26 */
-    UART    /**< @brief Enable UART RX/TX mode. UART TX only available on Port 
-                        C—GPIO 14 and UART RX is only available on Port C—GPIO 
-                        13. Only supports full-duplex UART so setting one pin 
+    UART    /**< @brief Enable UART RX/TX mode. UART TX only available on Port
+                        C—GPIO 14 and UART RX is only available on Port C—GPIO
+                        13. Only supports full-duplex UART so setting one pin
                         to UART mode will also set the other pin to UART mode.*/
 } pin_mode_t;
 /* @[declare_pin_mode_t] */
 
-struct 
+struct
 {
     gpio_num_t pin;
     pin_mode_t mode;
-} static _port_pins[] = 
+} static _port_pins[] =
 {
     { PORT_A_SDA_PIN, NONE },
     { PORT_A_SCL_PIN, NONE },
@@ -122,7 +122,7 @@ static esp_err_t _core2foraws_expports_pin_init( gpio_num_t pin, pin_mode_t mode
 
         if ( mode == OUTPUT )
         {
-            io_conf.mode = GPIO_MODE_OUTPUT; 
+            io_conf.mode = GPIO_MODE_OUTPUT;
             io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
             io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
             err = gpio_config( &io_conf );
@@ -130,7 +130,7 @@ static esp_err_t _core2foraws_expports_pin_init( gpio_num_t pin, pin_mode_t mode
             {
                 ESP_LOGE( _TAG, "\tError configuring GPIO %d as ouput. Error code: 0x%x.", pin, err );
             }
-        } 
+        }
         else
         {
             io_conf.mode = GPIO_MODE_INPUT;
@@ -141,7 +141,7 @@ static esp_err_t _core2foraws_expports_pin_init( gpio_num_t pin, pin_mode_t mode
             {
                 ESP_LOGE( _TAG, "\tError configuring GPIO %d as input. Error code: 0x%x.", pin, err );
             }
-        }  
+        }
     }
     else if (mode == ADC)
     {
@@ -151,13 +151,13 @@ static esp_err_t _core2foraws_expports_pin_init( gpio_num_t pin, pin_mode_t mode
             ESP_LOGE( _TAG, "\tError configuring ADC width on pin %d. Error code: 0x%x.", pin, err );
             return err;
         }
-        
+
         err = adc1_config_channel_atten( ADC_CHANNEL, ADC_ATTENUATION );
         if ( err != ESP_OK )
         {
             ESP_LOGE( _TAG, "\tError configuring ADC channel attenuation on pin %d. Error code: 0x%x.", pin, err );
         }
-        
+
         _adc_characterization = heap_caps_calloc( 1, sizeof( esp_adc_cal_characteristics_t ), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT );
         esp_adc_cal_characterize( ADC_UNIT_1, ADC_ATTENUATION, ADC_WIDTH, DEFAULT_VREF, _adc_characterization );
     }
@@ -205,18 +205,23 @@ static esp_err_t _core2foraws_expports_pin_handler( gpio_num_t pin, pin_mode_t m
         ESP_LOGE( _TAG, "\tGPIO 36 does not support digital output" );
         return err;
     }
-    else 
+    else
     {
         err = ESP_OK;
     }
 
     uint8_t index = _core2foraws_expports_get_index( pin );
 
-    if ( _port_pins[ index ].mode != mode || _port_pins[ index ].mode != NONE )
+    //WTF? Why is this logical OR? Should this not be an AND?
+    //Seems post initialisation the pin mode is NONE for all pins, which will always result in this test being TRUE
+    //Resulting in falling into the "INVALID STATE" error, and then trying to de-init the pin
+    //(which ultimately results in panic lower in the stack)
+    //Attempting to change to AND to see if that helps
+    if ( _port_pins[ index ].mode != mode && _port_pins[ index ].mode != NONE )
     {
         err = ESP_ERR_INVALID_STATE;
         ESP_LOGD( _TAG, "\tPin %d is currently set in a different mode. Resetting", pin );
-        
+
         _core2foraws_expports_pin_init( pin, NONE );
         _port_pins[ index ].mode = NONE;
     }
@@ -227,7 +232,7 @@ static esp_err_t _core2foraws_expports_pin_handler( gpio_num_t pin, pin_mode_t m
         _port_pins[ index ].mode = mode;
     }
 
-    return err; 
+    return err;
 }
 
 esp_err_t core2foraws_expports_digital_read( gpio_num_t pin, bool *level )
@@ -248,7 +253,7 @@ esp_err_t core2foraws_expports_digital_write( gpio_num_t pin, const bool level )
     {
         err = gpio_set_level(pin, level);
     }
-    
+
     return err;
 }
 
@@ -289,20 +294,20 @@ esp_err_t core2foraws_expports_adc_read( int *raw_adc_value )
     {
         *raw_adc_value = adc1_get_raw(ADC_CHANNEL);
     }
-    
+
     return err;
 }
 
 esp_err_t core2foraws_expports_adc_mv_read( uint32_t *adc_mvolts )
 {
     esp_err_t err = ESP_FAIL;
-    
+
     err = _core2foraws_expports_pin_handler( PORT_B_ADC_PIN, ADC );
     if ( err == ESP_OK )
     {
         err = esp_adc_cal_get_voltage(ADC_CHANNEL, _adc_characterization, adc_mvolts );
     }
-    
+
     return err;
 }
 
@@ -314,7 +319,7 @@ esp_err_t core2foraws_expports_dac_mv_write( const uint16_t dac_mvolts )
     if ( err == ESP_OK )
     {
         uint8_t duty = 0;
-    
+
         if ( dac_mvolts > 3200 )
         {
             duty = 255;
@@ -326,7 +331,7 @@ esp_err_t core2foraws_expports_dac_mv_write( const uint16_t dac_mvolts )
 
         err = dac_output_voltage(DAC_CHANNEL, duty);
     }
-    
+
     return err;
 }
 
@@ -335,7 +340,7 @@ esp_err_t core2foraws_expports_uart_begin( uint32_t baud )
     _core2foraws_expports_pin_handler( PORT_C_UART_RX_PIN, UART );
     _core2foraws_expports_pin_handler( PORT_C_UART_TX_PIN, UART );
 
-    const uart_config_t uart_config = 
+    const uart_config_t uart_config =
     {
         .baud_rate = baud,
         .data_bits = UART_DATA_8_BITS,
@@ -344,12 +349,12 @@ esp_err_t core2foraws_expports_uart_begin( uint32_t baud )
         .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
         .rx_flow_ctrl_thresh = 122,
     };
-    
+
     esp_err_t err = uart_param_config( PORT_C_UART_NUM, &uart_config );
     if ( err != ESP_OK )
     {
         ESP_LOGE( _TAG, "\tFailed to configure UART%d with the provided configuration.", PORT_C_UART_NUM );
-    }    
+    }
 
     return err;
 }

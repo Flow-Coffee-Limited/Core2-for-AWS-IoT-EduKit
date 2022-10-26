@@ -47,25 +47,25 @@ extern "C" {
 /**
  * @brief The I2C SDA pin on expansion port A.
  *
- * This maps to GPIO 32 and can be used as the Serial Data Line 
- * (SDA) pin for I2C bus communication. Read more about [I2C 
- * capabilities of the ESP32 microcontroller and available APIs 
+ * This maps to GPIO 32 and can be used as the Serial Data Line
+ * (SDA) pin for I2C bus communication. Read more about [I2C
+ * capabilities of the ESP32 microcontroller and available APIs
  * in the ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/release-v4.3/esp32/api-reference/peripherals/i2c.html).
  */
 /* @[declare_core2foraws_expports_port_a_sda_pin] */
-#define PORT_A_SDA_PIN GPIO_NUM_32
+#define PORT_A_SDA_PIN CONFIG_I2C_MANAGER_1_SDA_IO_PIN
 /* @[declare_core2foraws_expports_port_a_sda_pin] */
 
 /**
  * @brief The I2C SCL pin on expansion port A.
  *
- * This maps to GPIO 33 and can be used as the Serial CLock Line 
- * (SCL) pin to synchronize I2C bus communication. Read more about 
- * [I2C capabilities of the ESP32 microcontroller and available 
+ * This maps to GPIO 33 and can be used as the Serial CLock Line
+ * (SCL) pin to synchronize I2C bus communication. Read more about
+ * [I2C capabilities of the ESP32 microcontroller and available
  * APIs in the ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/release-v4.3/esp32/api-reference/peripherals/i2c.html).
  */
 /* @[declare_core2foraws_expports_port_a_scl_pin] */
-#define PORT_A_SCL_PIN GPIO_NUM_33
+#define PORT_A_SCL_PIN CONFIG_I2C_MANAGER_1_SCL_IO_PIN
 /* @[declare_core2foraws_expports_port_a_scl_pin] */
 
 /**
@@ -78,7 +78,7 @@ extern "C" {
 /**
  * @brief The ADC pin on expansion port B.
  *
- * This maps to GPIO 36 and is capable of converting analog signals 
+ * This maps to GPIO 36 and is capable of converting analog signals
  * to digital. Read more about using [ADCs with the ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/peripherals/adc.html).
  */
 /* @[declare_core2foraws_expports_port_b_adc_pin] */
@@ -88,8 +88,8 @@ extern "C" {
 /**
  * @brief The DAC pin on expansion port B.
  *
- * This maps to GPIO 26 and is capable of converting digital 
- * signals to analog. Read more about using [DACs with the 
+ * This maps to GPIO 26 and is capable of converting digital
+ * signals to analog. Read more about using [DACs with the
  * ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/peripherals/dac.html).
  */
 /* @[declare_core2foraws_expports_port_b_dac_pin] */
@@ -99,8 +99,8 @@ extern "C" {
 /**
  * @brief The UART transmission pin on expansion port C.
  *
- * This maps to GPIO 14 and can be used as the transmission 
- * channel for UART communication. Read more about [UART 
+ * This maps to GPIO 14 and can be used as the transmission
+ * channel for UART communication. Read more about [UART
  * communications with the ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/peripherals/uart.html).
  */
 /* @[declare_core2foraws_expports_port_c_uart_tx_pin] */
@@ -110,8 +110,8 @@ extern "C" {
 /**
  * @brief The UART receiver pin on expansion port C.
  *
- * This maps to GPIO 13 and can be used as the receiver channel 
- * for UART communication. Read more about [UART communications 
+ * This maps to GPIO 13 and can be used as the receiver channel
+ * for UART communication. Read more about [UART communications
  * with the ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/peripherals/uart.html).
  */
 /* @[declare_core2foraws_expports_port_c_uart_rx_pin] */
@@ -144,23 +144,23 @@ extern "C" {
 /**
  * @brief Reads the value from a specified digital pin — either 1 (high) or 0 (low).
  *
- * Pin reads high when connected to Vcc. In order for the pin to 
- * read high, the connected peripheral must use the available 
+ * Pin reads high when connected to Vcc. In order for the pin to
+ * read high, the connected peripheral must use the available
  * ground and Vcc pins and not an external power source.
- * 
- * @note To use the pin for another compatible purpose (e.g. 
- * depending on the pin — read, ADC, DAC, I2C, UART, etc.), you must 
+ *
+ * @note To use the pin for another compatible purpose (e.g.
+ * depending on the pin — read, ADC, DAC, I2C, UART, etc.), you must
  * first reset the pin with @ref core2foraws_expports_pin_reset.
- * 
- * @note The AXP192 PMU is configured to output 5v on the 
- * expansion port's VCC pin. Some peripherals require 3.3V and 
+ *
+ * @note The AXP192 PMU is configured to output 5v on the
+ * expansion port's VCC pin. Some peripherals require 3.3V and
  * must have the voltage reduced to avoid damage.
  *
  * **Example:**
- * 
- * The example code creates a FreeRTOS task which periodically 
- * (1s) reads from GPIO 26 to see if a compatible peripheral is 
- * connected. The task prints the returned value to the serial 
+ *
+ * The example code creates a FreeRTOS task which periodically
+ * (1s) reads from GPIO 26 to see if a compatible peripheral is
+ * connected. The task prints the returned value to the serial
  * monitor.
  * @code{c}
  *  #include <stdio.h>
@@ -175,7 +175,7 @@ extern "C" {
  *  void pin_read_task()
  *  {
  *      bool state = false;
- * 
+ *
  *      for( ;; )
  *      {
  *          core2foraws_expports_digital_read( GPIO_NUM_26, &state );
@@ -187,7 +187,7 @@ extern "C" {
  *  void app_main( void )
  *  {
  *      core2foraws_init();
- * 
+ *
  *      if ( err == ESP_OK )
  *      {
  *          xTaskCreatePinnedToCore( pin_read_task, "read_pin", 1024*3, NULL, 1, NULL, 1 );
@@ -196,7 +196,7 @@ extern "C" {
  * @endcode
  *
  * @param[in] pin The GPIO pin to read.
- * @param[out] level Pointer to set as the boolean digital level of 
+ * @param[out] level Pointer to set as the boolean digital level of
  * the pin reading.
  * @return [esp_err_t](https://docs.espressif.com/projects/esp-idf/en/release-v4.3/esp32/api-reference/system/esp_err.html#macros).
  *  - ESP_OK    : Success
@@ -207,26 +207,26 @@ esp_err_t core2foraws_expports_digital_read( gpio_num_t pin, bool *level );
 /* @[declare_core2foraws_expport_digital_read] */
 
 /**
- * @brief Writes the value to a specified digital pin — either 1 
+ * @brief Writes the value to a specified digital pin — either 1
  * (high) or 0 (low).
  *
- * A high output is connected to Vcc. In order to complete the 
- * circuit, the connected peripheral must use the available 
+ * A high output is connected to Vcc. In order to complete the
+ * circuit, the connected peripheral must use the available
  * ground.
- * 
- * @note To use the pin for another compatible purpose (e.g. 
- * depending on the pin — read, ADC, DAC, I2C, UART, etc.), you 
+ *
+ * @note To use the pin for another compatible purpose (e.g.
+ * depending on the pin — read, ADC, DAC, I2C, UART, etc.), you
  * must first reset the pin with @ref core2foraws_expports_pin_reset.
- * 
- * @note The AXP192 PMU is configured to output 5v on the 
- * expansion port's VCC pin. Some peripherals require 3.3V and 
+ *
+ * @note The AXP192 PMU is configured to output 5v on the
+ * expansion port's VCC pin. Some peripherals require 3.3V and
  * must have the voltage reduced to avoid damage.
  *
  * **Example:**
- * 
- * The example code creates a FreeRTOS task which periodically 
- * (1s) reads from GPIO 26 to see if a compatible peripheral is 
- * connected. The task prints the returned value to the serial 
+ *
+ * The example code creates a FreeRTOS task which periodically
+ * (1s) reads from GPIO 26 to see if a compatible peripheral is
+ * connected. The task prints the returned value to the serial
  * monitor.
  * @code{c}
  *  #include <stdio.h>
@@ -242,7 +242,7 @@ esp_err_t core2foraws_expports_digital_read( gpio_num_t pin, bool *level );
  *      for( ;; )
  *      {
  *          esp_err_t err = ESP_FAIL;
- *          
+ *
  *          err = core2foraws_expports_digital_write( GPIO_NUM_26, output );
  *          if ( err == ESP_OK )
  *              ESP_LOGI( TAG, "\tOutput on GPIO %d: %s", GPIO_NUM_26, output ? "HIGH" : "LOW" );
@@ -273,13 +273,13 @@ esp_err_t core2foraws_expports_digital_write( gpio_num_t pin, const bool level )
 /**
  * @brief Resets the specified pin.
  *
- * This function is used to reset the pin configuration to either 
- * save memory or to use the pin for another compatible purpose 
- * (e.g. depending on the pin — read, ADC, DAC, I2C, UART, etc.), 
+ * This function is used to reset the pin configuration to either
+ * save memory or to use the pin for another compatible purpose
+ * (e.g. depending on the pin — read, ADC, DAC, I2C, UART, etc.),
  * you must first reset the pin with @ref core2foraws_expports_pin_reset.
- * 
+ *
  * **Example:**
- * 
+ *
  * The example code reads from GPIO 26 and then resets the pin.
  * @code{c}
  *  #include <stdio.h>
@@ -291,7 +291,7 @@ esp_err_t core2foraws_expports_digital_write( gpio_num_t pin, const bool level )
  *  void app_main( void )
  *  {
  *      core2foraws_init();
- *      
+ *
  *      bool state = false;
  *      core2foraws_expports_digital_read( GPIO_NUM_26, &state );
  *          ESP_LOGI( TAG, "\tSensor plugged in ( 0=no / 1=yes ): %d", state);
@@ -310,25 +310,25 @@ esp_err_t core2foraws_expports_pin_reset( gpio_num_t pin );
 
 /**
  * @brief Configures expansion port A for use with an I2C peripheral.
- *  
+ *
  * Configures the pin to use I2C.
- * 
- * @note The baud rate of the I2C device can be set in the Kconfig 
- * menu for the symbol `CONFIG_I2C_MANAGER_1_FREQ_HZ`. The default 
+ *
+ * @note The baud rate of the I2C device can be set in the Kconfig
+ * menu for the symbol `CONFIG_I2C_MANAGER_1_FREQ_HZ`. The default
  * baud rate is 400KHz.
  *
- * @note The AXP192 PMU is configured to output 5v on the 
- * expansion port's VCC pin. Some peripherals require 3.3V and 
+ * @note The AXP192 PMU is configured to output 5v on the
+ * expansion port's VCC pin. Some peripherals require 3.3V and
  * must have the voltage reduced to avoid damage.
  *
  * **Example:**
- * 
- * The example creates a tasks which initializes the port for I2C, 
- * and loops every 10 seconds to read from a heart-rate sensor with 
- * the 8-bit device address 0xA0 (does not need to be right-shifted 
- * by 1-bit to be a 7-bit address). Since the device doesn't take a 
- * register address, use the placeholder macro @ref I2C_NO_REGISTER_ADDR. 
- * At the end of the loop, the sensor reading is printed to the 
+ *
+ * The example creates a tasks which initializes the port for I2C,
+ * and loops every 10 seconds to read from a heart-rate sensor with
+ * the 8-bit device address 0xA0 (does not need to be right-shifted
+ * by 1-bit to be a 7-bit address). Since the device doesn't take a
+ * register address, use the placeholder macro @ref I2C_NO_REGISTER_ADDR.
+ * At the end of the loop, the sensor reading is printed to the
  * serial output.
  * @code{c}
  *  #include <stdio.h>
@@ -336,47 +336,47 @@ esp_err_t core2foraws_expports_pin_reset( gpio_num_t pin );
  *  #include <freertos/FreeRTOS.h>
  *  #include <freertos/task.h>
  *  #include <esp_log.h>
- * 
+ *
  *  #include "core2foraws.h"
- *  
+ *
  *  #define DEVICE_ADDRESS 0xA0
- *  
+ *
  *  static const char *TAG = "MAIN_I2C_EXAMPLE";
- *  
+ *
  *  void i2c_test_task( void *pvParameters )
  *  {
  *      esp_err_t err = ESP_FAIL;
- *      
+ *
  *      err = core2foraws_expports_i2c_begin();
- *      
+ *
  *      if ( err == ESP_OK)
  *      {
  *          uint8_t heart_rate = 255;
- * 
+ *
  *          for( ;; )
  *          {
  *              err = core2foraws_expports_i2c_read( DEVICE_ADDRESS, I2C_NO_REG, &heart_rate, 1 );
  *              if ( !err )
  *              {
- *                  ESP_LOGI(TAG, "Heart Rate — %ubpm", heart_rate);    
+ *                  ESP_LOGI(TAG, "Heart Rate — %ubpm", heart_rate);
  *              }
- * 
+ *
  *              vTaskDelay( pdMS_TO_TICKS( 10000 ) );
  *          }
  *      }
- *      
+ *
  *      core2foraws_expports_i2c_close();
  *      core2foraws_expports_pin_reset();
  *      vTaskDelete( NULL );
  *  }
- *  
+ *
  *  void app_main()
  *  {
  *      core2foraws_init();
  *      xTaskCreatePinnedToCore(&i2c_test_task, "i2c_test_task", 1024*4, NULL, 2, NULL, 1);
  *  }
  * @endcode
- * 
+ *
  * @return [esp_err_t](https://docs.espressif.com/projects/esp-idf/en/release-v4.3/esp32/api-reference/system/esp_err.html#macros).
  *  - ESP_OK                : Success
  *  - ESP_ERR_INVALID_ARG	: Driver parameter error
@@ -389,26 +389,26 @@ esp_err_t core2foraws_expports_i2c_begin( void );
  * @brief Read from the I2C peripheral attatched to expansion port A.
  *
  * A thread-safe method to read from the I2C peripheral.
- * 
- * Read more about [I2C capabilities of the ESP32 microcontroller 
+ *
+ * Read more about [I2C capabilities of the ESP32 microcontroller
  * and available APIs in the ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/release-v4.2/esp32/api-reference/peripherals/i2c.html).
- * 
- * @note The baud rate of the I2C device can be set in the Kconfig 
- * menu for the symbol `CONFIG_I2C_MANAGER_1_FREQ_HZ`. The default 
+ *
+ * @note The baud rate of the I2C device can be set in the Kconfig
+ * menu for the symbol `CONFIG_I2C_MANAGER_1_FREQ_HZ`. The default
  * baud rate is 400KHz.
  *
- * @note The AXP192 PMU is configured to output 5v on the 
- * expansion port's VCC pin. Some peripherals require 3.3V and 
+ * @note The AXP192 PMU is configured to output 5v on the
+ * expansion port's VCC pin. Some peripherals require 3.3V and
  * must have the voltage reduced to avoid damage.
  *
  * **Example:**
- * 
- * The example creates a tasks which initializes the port for I2C, 
- * and loops every 10 seconds to read from a heart-rate sensor with 
- * the 8-bit device address 0xA0 (does not need to be right-shifted 
- * by 1-bit to be a 7-bit address). Since the device doesn't take a 
- * register address, use the placeholder macro @ref I2C_NO_REGISTER_ADDR. 
- * At the end of the loop, the sensor reading is printed to the 
+ *
+ * The example creates a tasks which initializes the port for I2C,
+ * and loops every 10 seconds to read from a heart-rate sensor with
+ * the 8-bit device address 0xA0 (does not need to be right-shifted
+ * by 1-bit to be a 7-bit address). Since the device doesn't take a
+ * register address, use the placeholder macro @ref I2C_NO_REGISTER_ADDR.
+ * At the end of the loop, the sensor reading is printed to the
  * serial output.
  * @code{c}
  *  #include <stdio.h>
@@ -416,47 +416,47 @@ esp_err_t core2foraws_expports_i2c_begin( void );
  *  #include <freertos/FreeRTOS.h>
  *  #include <freertos/task.h>
  *  #include <esp_log.h>
- * 
+ *
  *  #include "core2foraws.h"
- *  
+ *
  *  #define DEVICE_ADDRESS 0xA0
- *  
+ *
  *  static const char *TAG = "MAIN_I2C_EXAMPLE";
- *  
+ *
  *  void i2c_test_task( void *pvParameters )
  *  {
  *      esp_err_t err = ESP_FAIL;
- *      
+ *
  *      err = core2foraws_expports_i2c_begin();
- *      
+ *
  *      if ( err == ESP_OK)
  *      {
  *          uint8_t heart_rate = 255;
- * 
+ *
  *          for( ;; )
  *          {
  *              err = core2foraws_expports_i2c_read( DEVICE_ADDRESS, I2C_NO_REG, &heart_rate, 1 );
  *              if ( !err )
  *              {
- *                  ESP_LOGI(TAG, "Heart Rate — %ubpm", heart_rate);    
+ *                  ESP_LOGI(TAG, "Heart Rate — %ubpm", heart_rate);
  *              }
- * 
+ *
  *              vTaskDelay( pdMS_TO_TICKS( 10000 ) );
  *          }
  *      }
- *      
+ *
  *      core2foraws_expports_i2c_close();
  *      core2foraws_expports_pin_reset();
  *      vTaskDelete( NULL );
  *  }
- *  
+ *
  *  void app_main()
  *  {
  *      core2foraws_init();
  *      xTaskCreatePinnedToCore(&i2c_test_task, "i2c_test_task", 1024*4, NULL, 2, NULL, 1);
  *  }
  * @endcode
- * 
+ *
  * @param[in] device_address The 8-bit I2C peripheral address.
  * @param[in] register_address The data register address.
  * @param[out] data Pointer to the data read from the I2C peripheral.
@@ -473,41 +473,41 @@ esp_err_t core2foraws_expports_i2c_read( uint16_t device_address, uint32_t regis
  * @brief Write to the I2C peripheral attatched to expansion port A.
  *
  * A thread-safe method to write to the I2C peripheral.
- * 
- * Read more about [I2C capabilities of the ESP32 microcontroller 
+ *
+ * Read more about [I2C capabilities of the ESP32 microcontroller
  * and available APIs in the ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/release-v4.2/esp32/api-reference/peripherals/i2c.html).
- * 
- * @note The baud rate of the I2C device can be set in the Kconfig 
- * menu for the symbol `CONFIG_I2C_MANAGER_1_FREQ_HZ`. The default 
+ *
+ * @note The baud rate of the I2C device can be set in the Kconfig
+ * menu for the symbol `CONFIG_I2C_MANAGER_1_FREQ_HZ`. The default
  * baud rate is 400KHz.
  *
- * @note The AXP192 PMU is configured to output 5v on the 
- * expansion port's VCC pin. Some peripherals require 3.3V and 
+ * @note The AXP192 PMU is configured to output 5v on the
+ * expansion port's VCC pin. Some peripherals require 3.3V and
  * must have the voltage reduced to avoid damage.
  *
  * **Example:**
- * 
- * The example creates a tasks which initializes the port for I2C, 
- * and writes a single byte — 0x01 — to register 0x12 to a device 
+ *
+ * The example creates a tasks which initializes the port for I2C,
+ * and writes a single byte — 0x01 — to register 0x12 to a device
  * with the address 0x29.
  * @code{c}
  *  #include <stdio.h>
  *  #include <stdlib.h>
  *  #include <esp_log.h>
- * 
+ *
  *  #include "core2foraws.h"
- *  
+ *
  *  #define DEVICE_ADDRESS 0x29
- *  
+ *
  *  static const char *TAG = "MAIN_I2C_EXAMPLE";
- *  
+ *
  *  void app_main()
  *  {
  *      core2foraws_init();
  *      esp_err_t err = ESP_FAIL;
  *      uint8_t register_address = 0x12;
  *      const uint8_t write_byte = 0x01;
- *      
+ *
  *      err = core2foraws_expports_i2c_begin();
  *      if ( err == ESP_OK )
  *      {
@@ -515,10 +515,10 @@ esp_err_t core2foraws_expports_i2c_read( uint16_t device_address, uint32_t regis
  *      }
  *  }
  * @endcode
- * 
+ *
  * @param[in] device_address The 8-bit I2C peripheral address.
  * @param[in] register_address The data register address.
- * @param[out] data Pointer to the data to write to the I2C 
+ * @param[out] data Pointer to the data to write to the I2C
  * peripheral.
  * @param[in] length The number of bytes to write.
  * @return [esp_err_t](https://docs.espressif.com/projects/esp-idf/en/release-v4.3/esp32/api-reference/system/esp_err.html#macros).
@@ -534,22 +534,22 @@ esp_err_t core2foraws_expports_i2c_write( uint16_t device_address, uint32_t regi
  *
  * An optional function that can be called to remove the mutex
  * associated with the external port.
- * 
- * Read more about [I2C capabilities of the ESP32 microcontroller 
+ *
+ * Read more about [I2C capabilities of the ESP32 microcontroller
  * and available APIs in the ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/release-v4.2/esp32/api-reference/peripherals/i2c.html).
  *
- * @note The AXP192 PMU is configured to output 5v on the 
- * expansion port's VCC pin. Some peripherals require 3.3V and 
+ * @note The AXP192 PMU is configured to output 5v on the
+ * expansion port's VCC pin. Some peripherals require 3.3V and
  * must have the voltage reduced to avoid damage.
  *
  * **Example:**
- * 
- * The example creates a tasks which initializes the port for I2C, 
- * and loops every 10 seconds to read from a heart-rate sensor with 
- * the 8-bit device address 0xA0 (does not need to be right-shifted 
- * by 1-bit to be a 7-bit address). Since the device doesn't take a 
- * register address, use the placeholder macro @ref I2C_NO_REGISTER_ADDR. 
- * At the end of the loop, the sensor reading is printed to the 
+ *
+ * The example creates a tasks which initializes the port for I2C,
+ * and loops every 10 seconds to read from a heart-rate sensor with
+ * the 8-bit device address 0xA0 (does not need to be right-shifted
+ * by 1-bit to be a 7-bit address). Since the device doesn't take a
+ * register address, use the placeholder macro @ref I2C_NO_REGISTER_ADDR.
+ * At the end of the loop, the sensor reading is printed to the
  * serial output. If @ref core2foraws_expports_i2c_begin returns an
  * error, call `core2foraws_expports_i2c_close` and reset the pin.
  * @code{c}
@@ -558,47 +558,47 @@ esp_err_t core2foraws_expports_i2c_write( uint16_t device_address, uint32_t regi
  *  #include <freertos/FreeRTOS.h>
  *  #include <freertos/task.h>
  *  #include <esp_log.h>
- * 
+ *
  *  #include "core2foraws.h"
- *  
+ *
  *  #define DEVICE_ADDRESS 0xA0
- *  
+ *
  *  static const char *TAG = "MAIN_I2C_EXAMPLE";
- *  
+ *
  *  void i2c_test_task( void *pvParameters )
  *  {
  *      esp_err_t err = ESP_FAIL;
- *      
+ *
  *      err = core2foraws_expports_i2c_begin();
- *      
+ *
  *      if ( err == ESP_OK)
  *      {
  *          uint8_t heart_rate = 255;
- * 
+ *
  *          for( ;; )
  *          {
  *              err = core2foraws_expports_i2c_read( DEVICE_ADDRESS, I2C_NO_REG, &heart_rate, 1 );
  *              if ( !err )
  *              {
- *                  ESP_LOGI(TAG, "Heart Rate — %ubpm", heart_rate);    
+ *                  ESP_LOGI(TAG, "Heart Rate — %ubpm", heart_rate);
  *              }
- * 
+ *
  *              vTaskDelay( pdMS_TO_TICKS( 10000 ) );
  *          }
  *      }
- *      
+ *
  *      core2foraws_expports_i2c_close();
  *      core2foraws_expports_pin_reset();
  *      vTaskDelete( NULL );
  *  }
- *  
+ *
  *  void app_main()
  *  {
  *      core2foraws_init();
  *      xTaskCreatePinnedToCore(&i2c_test_task, "i2c_test_task", 1024*4, NULL, 2, NULL, 1);
  *  }
  * @endcode
- * 
+ *
  * @return [esp_err_t](https://docs.espressif.com/projects/esp-idf/en/release-v4.3/esp32/api-reference/system/esp_err.html#macros).
  *  - ESP_OK                : Success
  *  - ESP_ERR_INVALID_ARG	: Driver parameter error
@@ -611,17 +611,17 @@ esp_err_t core2foraws_expports_i2c_close( void );
  * @brief Read the raw ADC value from @ref PORT_B_ADC_PIN (GPIO 36).
  *
  * This function reads the raw ADC value from Port B's
- * Analog-to-Digital-Converter (ADC) on GPIO36. GPIO36 is the only 
+ * Analog-to-Digital-Converter (ADC) on GPIO36. GPIO36 is the only
  * pin on the external ports with access to the ADC.
  * Read more about using [ADCs with the ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/peripherals/adc.html).
- * 
+ *
  * @note Uses the etched eFuse VRef calibration.
  *
  * **Example:**
- * 
- * The example creates a FreeRTOS task which periodically (1s) reads 
- * the raw ADC value of the [M5Stack EARTH](https://shop.m5stack.com/products/earth-sensor-unit) 
- * moisture sensor connected on Port B. It prints out the value to 
+ *
+ * The example creates a FreeRTOS task which periodically (1s) reads
+ * the raw ADC value of the [M5Stack EARTH](https://shop.m5stack.com/products/earth-sensor-unit)
+ * moisture sensor connected on Port B. It prints out the value to
  * the serial output.
  * @code{c}
  *  #include <stdio.h>
@@ -640,7 +640,7 @@ esp_err_t core2foraws_expports_i2c_close( void );
  *      {
  *          core2foraws_expports_adc_read( &adc_val );
  *          ESP_LOGI( TAG, "\tMoisture ADC raw: %d", adc_val );
- * 
+ *
  *          vTaskDelay( pdMS_TO_TICKS( 1000 ) );
  *      }
  *  }
@@ -662,7 +662,7 @@ esp_err_t core2foraws_expports_adc_read( int *raw_adc_value );
 /* @[declare_core2foraws_expport_adc_read] */
 
 /**
- * @brief Read the calibrated ADC voltage from @ref PORT_B_ADC_PIN 
+ * @brief Read the calibrated ADC voltage from @ref PORT_B_ADC_PIN
  * (GPIO 36).
  *
  * This function reads the raw ADC value from Port B's
@@ -670,14 +670,14 @@ esp_err_t core2foraws_expports_adc_read( int *raw_adc_value );
  * millivolts using the VRef calibration. GPIO36 is the only pin on
  * the external ports with access to the ADC.
  * Read more about using [ADCs with the ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/peripherals/adc.html).
- * 
+ *
  * @note Uses the etched eFuse VRef calibration.
  *
  * **Example:**
- * 
- * The example creates a FreeRTOS task which periodically (1s) reads 
- * the ADC voltage of the [M5Stack EARTH](https://shop.m5stack.com/products/earth-sensor-unit) 
- * moisture sensor connected on Port B. It prints out the value to 
+ *
+ * The example creates a FreeRTOS task which periodically (1s) reads
+ * the ADC voltage of the [M5Stack EARTH](https://shop.m5stack.com/products/earth-sensor-unit)
+ * moisture sensor connected on Port B. It prints out the value to
  * the serial output.
  * @code{c}
  *  #include <stdio.h>
@@ -696,7 +696,7 @@ esp_err_t core2foraws_expports_adc_read( int *raw_adc_value );
  *      {
  *          core2foraws_expports_adc_mv_read( &adc_volts );
  *          ESP_LOGI( TAG, "\tMoisture ADC millivolts: %d", adc_volts );
- * 
+ *
  *          vTaskDelay( pdMS_TO_TICKS( 1000 ) );
  *      }
  *  }
@@ -708,7 +708,7 @@ esp_err_t core2foraws_expports_adc_read( int *raw_adc_value );
  *  }
  * @endcode
  *
- * @param[out] adc_mvolts Pointer to the voltage reading from the 
+ * @param[out] adc_mvolts Pointer to the voltage reading from the
  * ADC in millivolts.
  * @return [esp_err_t](https://docs.espressif.com/projects/esp-idf/en/release-v4.3/esp32/api-reference/system/esp_err.html#macros).
  *  - ESP_OK    : Success
@@ -719,14 +719,14 @@ esp_err_t core2foraws_expports_adc_mv_read( uint32_t *adc_mvolts );
 /* @[declare_core2foraws_expport_adc_mv_read] */
 
 /**
- * @brief Outputs the specified voltage (millivolts) to the DAC on 
+ * @brief Outputs the specified voltage (millivolts) to the DAC on
  * @ref PORT_B_DAC_PIN (GPIO 26).
  *
  * This function accepts a range from 0 to a maximum of VDD3P3_RTC
  * (~3300mV).
  *
  * **Example:**
- * 
+ *
  * The example code sets the PORT_B_DAC_PIN (GPIO 26) pin mode
  * to DAC and outputs 1,500mV.
  * @code{c}
@@ -752,36 +752,36 @@ esp_err_t core2foraws_expports_dac_mv_write( const uint16_t dac_mvolts );
 /* @[declare_core2foraws_expport_adc_mv_write] */
 
 /**
- * @brief Configures the UART interface on for @ref 
+ * @brief Configures the UART interface on for @ref
  * PORT_C_UART_RX_PIN (GPIO 13) and @ref PORT_C_UART_TX_PIN (GPIO 14)
  * at the specified baud rate.
  *
  * This is a helper function to simplify building applications
- * with UART. It preconfigures the UART communications with 8 bit 
- * word length, no parity bit, 1 bit for the number of stop bits, 
- * and hardware flow control disabled. It sets the baud rate to the 
- * user defined value and starts reading from the UART channel 2 and 
+ * with UART. It preconfigures the UART communications with 8 bit
+ * word length, no parity bit, 1 bit for the number of stop bits,
+ * and hardware flow control disabled. It sets the baud rate to the
+ * user defined value and starts reading from the UART channel 2 and
  * storing data into the ring buffer of length @ref UART_RX_BUF_SIZE.
  *
- * @note Usage of the UART convenience methods provided in this BSP aims 
- * to simplify development at the expense of compatibility and 
- * performance. The configuration above may not be suitable for your 
- * application or attached peripheral. For more information about 
- * UART communications on the Core2 for AWS IoT EduKit using the 
- * ESP32 and how to create your own configuration, visit Espressif's 
+ * @note Usage of the UART convenience methods provided in this BSP aims
+ * to simplify development at the expense of compatibility and
+ * performance. The configuration above may not be suitable for your
+ * application or attached peripheral. For more information about
+ * UART communications on the Core2 for AWS IoT EduKit using the
+ * ESP32 and how to create your own configuration, visit Espressif's
  * official [documentation](https://docs.espressif.com/projects/esp-idf/en/release-v4.2/esp32/api-reference/peripherals/uart.html).
  *
- * @note The ESP32 is a 3.3v device and requires 3.3v on the UART 
+ * @note The ESP32 is a 3.3v device and requires 3.3v on the UART
  * TX/RX lines. Higher voltages requires the use of a level shifter.
  *
  * **Example:**
- * 
- * The example below sets @ref PORT_C_UART_TX_PIN (GPIO 14 to 
- * transmit) and PORT_C_UART_RX_PIN (GPIO 13 to receive), and sets 
- * the UART baud rate to 115200. It then starts two FreeRTOS tasks — 
- * one that transmits "Hello from AWS IoT EduKit" every two seconds 
- * and the other receives the message. The receiver task outputs the 
- * number of bytes read from the buffer, the number of bytes that 
+ *
+ * The example below sets @ref PORT_C_UART_TX_PIN (GPIO 14 to
+ * transmit) and PORT_C_UART_RX_PIN (GPIO 13 to receive), and sets
+ * the UART baud rate to 115200. It then starts two FreeRTOS tasks —
+ * one that transmits "Hello from AWS IoT EduKit" every two seconds
+ * and the other receives the message. The receiver task outputs the
+ * number of bytes read from the buffer, the number of bytes that
  * remains unread in the ring buffer, and the message.
  *
  * @note To receive the messages transmitted on the same device, run a
@@ -804,10 +804,10 @@ esp_err_t core2foraws_expports_dac_mv_write( const uint16_t dac_mvolts );
  *          const char *message = "Hello from AWS IoT EduKit";
  *          size_t message_len = strlen( message ) + 1;
  *          size_t written_len = 0;
- * 
+ *
  *          core2foraws_expports_uart_write( message, message_len, &written_len );
  *          ESP_LOGI( TAG, "\tWrote %d out of % bytes", written_len, message_len );
- * 
+ *
  *          vTaskDelay( pdMS_TO_TICKS( 2000 ) );
  *      }
  *  }
@@ -851,35 +851,35 @@ esp_err_t core2foraws_expports_uart_begin( uint32_t baud );
 /* @[declare_core2foraws_expport_uart_begin] */
 
 /**
- * @brief Writes message to the UART2 interface through @ref 
+ * @brief Writes message to the UART2 interface through @ref
  * PORT_C_UART_TX_PIN (GPIO 14).
  *
  * This is a helper function to simplify building applications
- * with UART using 8 bit word length, no parity bit, 1 bit for the 
- * stop bit, and hardware flow control disabled. It sets the baud 
- * rate to the user defined value and starts reading from the UART 
- * channel 2 and storing data into the ring buffer of length @ref 
+ * with UART using 8 bit word length, no parity bit, 1 bit for the
+ * stop bit, and hardware flow control disabled. It sets the baud
+ * rate to the user defined value and starts reading from the UART
+ * channel 2 and storing data into the ring buffer of length @ref
  * UART_RX_BUF_SIZE.
  *
- * @note Usage of the UART convenience methods provided in this BSP aims 
- * to simplify development at the expense of compatibility and 
- * performance. The configuration above may not be suitable for your 
- * application or attached peripheral. For more information about 
- * UART communications on the Core2 for AWS IoT EduKit using the 
- * ESP32 and how to create your own configuration, visit Espressif's 
+ * @note Usage of the UART convenience methods provided in this BSP aims
+ * to simplify development at the expense of compatibility and
+ * performance. The configuration above may not be suitable for your
+ * application or attached peripheral. For more information about
+ * UART communications on the Core2 for AWS IoT EduKit using the
+ * ESP32 and how to create your own configuration, visit Espressif's
  * official [documentation](https://docs.espressif.com/projects/esp-idf/en/release-v4.2/esp32/api-reference/peripherals/uart.html).
  *
- * @note The ESP32 is a 3.3v device and requires 3.3v on the UART 
+ * @note The ESP32 is a 3.3v device and requires 3.3v on the UART
  * TX/RX lines. Higher voltages requires the use of a level shifter.
  *
  * **Example:**
- * 
- * The example below sets @ref PORT_C_UART_TX_PIN (GPIO 14 to 
- * transmit) and PORT_C_UART_RX_PIN (GPIO 13 to receive), and sets 
- * the UART baud rate to 115200. It then starts two FreeRTOS tasks — 
- * one that transmits "Hello from AWS IoT EduKit" every two seconds 
- * and the other receives the message. The receiver task outputs the 
- * number of bytes read from the buffer, the number of bytes that 
+ *
+ * The example below sets @ref PORT_C_UART_TX_PIN (GPIO 14 to
+ * transmit) and PORT_C_UART_RX_PIN (GPIO 13 to receive), and sets
+ * the UART baud rate to 115200. It then starts two FreeRTOS tasks —
+ * one that transmits "Hello from AWS IoT EduKit" every two seconds
+ * and the other receives the message. The receiver task outputs the
+ * number of bytes read from the buffer, the number of bytes that
  * remains unread in the ring buffer, and the message.
  *
  * @note To receive the messages transmitted on the same device, run a
@@ -900,10 +900,10 @@ esp_err_t core2foraws_expports_uart_begin( uint32_t baud );
  *          const char *message = "Hello from AWS IoT EduKit";
  *          size_t message_len = strlen( message ) + 1;
  *          size_t written_len = 0;
- * 
+ *
  *          core2foraws_expports_uart_write( message, message_len, &written_len );
  *          ESP_LOGI( TAG, "\tWrote %d out of % bytes", written_len, message_len );
- * 
+ *
  *          vTaskDelay( pdMS_TO_TICKS( 2000 ) );
  *      }
  *  }
@@ -937,11 +937,11 @@ esp_err_t core2foraws_expports_uart_begin( uint32_t baud );
  *  }
  * @endcode
  *
- * @param[in] message A pointer to the message to be transmitted 
+ * @param[in] message A pointer to the message to be transmitted
  * over UART2.
- * @param[in] length The size of the message that you want to 
+ * @param[in] length The size of the message that you want to
  * transmit.
- * @param[out] was_written_length Pointer to the number of bytes 
+ * @param[out] was_written_length Pointer to the number of bytes
  * sent over @ref PORT_C_UART_TX_PIN (GPIO 14).
  * @return [esp_err_t](https://docs.espressif.com/projects/esp-idf/en/release-v4.2/esp32/api-reference/system/esp_err.html#macros).
  *  - ESP_OK    : Success
@@ -952,35 +952,35 @@ esp_err_t core2foraws_expports_uart_write( const char *message, size_t length, s
 /* @[declare_core2foraws_expport_uart_write] */
 
 /**
- * @brief Read bytes from the UART2 interface through @ref 
+ * @brief Read bytes from the UART2 interface through @ref
  * PORT_C_UART_RX_PIN (GPIO 13).
  *
  * This is a helper function to simplify building applications
- * with UART using 8 bit word length, no parity bit, 1 bit for the 
- * stop bit, and hardware flow control disabled. It sets the baud 
- * rate to the user defined value and starts reading from the UART 
- * channel 2 and storing data into the ring buffer of length @ref 
+ * with UART using 8 bit word length, no parity bit, 1 bit for the
+ * stop bit, and hardware flow control disabled. It sets the baud
+ * rate to the user defined value and starts reading from the UART
+ * channel 2 and storing data into the ring buffer of length @ref
  * UART_RX_BUF_SIZE.
  *
- * @note Usage of the UART convenience methods provided in this BSP aims 
- * to simplify development at the expense of compatibility and 
- * performance. The configuration above may not be suitable for your 
- * application or attached peripheral. For more information about 
- * UART communications on the Core2 for AWS IoT EduKit using the 
- * ESP32 and how to create your own configuration, visit Espressif's 
+ * @note Usage of the UART convenience methods provided in this BSP aims
+ * to simplify development at the expense of compatibility and
+ * performance. The configuration above may not be suitable for your
+ * application or attached peripheral. For more information about
+ * UART communications on the Core2 for AWS IoT EduKit using the
+ * ESP32 and how to create your own configuration, visit Espressif's
  * official [documentation](https://docs.espressif.com/projects/esp-idf/en/release-v4.2/esp32/api-reference/peripherals/uart.html).
  *
- * @note The ESP32 is a 3.3v device and requires 3.3v on the UART 
+ * @note The ESP32 is a 3.3v device and requires 3.3v on the UART
  * TX/RX lines. Higher voltages requires the use of a level shifter.
  *
  * **Example:**
- * 
- * The example below sets @ref PORT_C_UART_TX_PIN (GPIO 14 to 
- * transmit) and PORT_C_UART_RX_PIN (GPIO 13 to receive), and sets 
- * the UART baud rate to 115200. It then starts two FreeRTOS tasks — 
- * one that transmits "Hello from AWS IoT EduKit" every two seconds 
- * and the other receives the message. The receiver task outputs the 
- * number of bytes read from the buffer, the number of bytes that 
+ *
+ * The example below sets @ref PORT_C_UART_TX_PIN (GPIO 14 to
+ * transmit) and PORT_C_UART_RX_PIN (GPIO 13 to receive), and sets
+ * the UART baud rate to 115200. It then starts two FreeRTOS tasks —
+ * one that transmits "Hello from AWS IoT EduKit" every two seconds
+ * and the other receives the message. The receiver task outputs the
+ * number of bytes read from the buffer, the number of bytes that
  * remains unread in the ring buffer, and the message.
  *
  * @note To receive the messages transmitted on the same device, run a
@@ -1001,10 +1001,10 @@ esp_err_t core2foraws_expports_uart_write( const char *message, size_t length, s
  *          const char *message = "Hello from AWS IoT EduKit";
  *          size_t message_len = strlen( message ) + 1;
  *          size_t written_len = 0;
- * 
+ *
  *          core2foraws_expports_uart_write( message, message_len, &written_len );
  *          ESP_LOGI( TAG, "\tWrote %d out of % bytes", written_len, message_len );
- * 
+ *
  *          vTaskDelay( pdMS_TO_TICKS( 2000 ) );
  *      }
  *  }
@@ -1038,9 +1038,9 @@ esp_err_t core2foraws_expports_uart_write( const char *message, size_t length, s
  *  }
  * @endcode
  *
- * @param[out] message_buffer A pointer to the buffer read from 
+ * @param[out] message_buffer A pointer to the buffer read from
  * UART2.
- * @param[out] was_read_length Pointer to the number of bytes read 
+ * @param[out] was_read_length Pointer to the number of bytes read
  * from @ref PORT_C_UART_RX_PIN (GPIO 13).
  * @return [esp_err_t](https://docs.espressif.com/projects/esp-idf/en/release-v4.2/esp32/api-reference/system/esp_err.html#macros).
  *  - ESP_OK    : Success

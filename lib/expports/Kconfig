@@ -9,7 +9,7 @@ menu "I2C Expansion Port A (RED)"
 			5000000 (5 Mhz). I2C busses that involve external wires may
 			have to be slower, and the real maximum speed the bus will
 			support depends on the value of the pullup resistors and the
-			design of the overall circuit. 
+			design of the overall circuit.
 	config I2C_MANAGER_1_TIMEOUT
 		int "I2C R/W timeout (ms)"
 		default 200
@@ -34,5 +34,15 @@ menu "I2C Expansion Port A (RED)"
 			pullup resistors already and turning these on will increase
 			power consumption slightly and may limit the speed your bus
 			can attain. Try with these off first if you don't know.
+	config I2C_MANAGER_1_SCL_IO_PIN
+		int "SCL GPIO Pin Number"
+		default 33
+		help
+			GPIO number for I2C Port clock line.
+	config I2C_MANAGER_1_SDA_IO_PIN
+		int "SDA GPIO Pin Number"
+		default 32
+		help
+			GPIO number for I2C Port data line.
 
 endmenu
